@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import geopy
 import openpyxl
 import pandas as pd
@@ -6,6 +8,7 @@ from geopandas.tools import geocode
 import psycopg2
 from psycopg2 import sql
 
+load_dotenv()
 
 # Função para ler um arquivo Excel e retornar um DataFrame do Pandas
 def ler_excel(caminho_arquivo):
@@ -32,11 +35,11 @@ def geocodificar_dataframe(df):
 def conectar_bd():
     try:
         conn = psycopg2.connect(
-            dbname='etl_gis',
-            user='postgres',
-            password='123456',
-            host='localhost',
-            port='5432'
+            dbname = os.getenv('DATABASE'),
+            user = os.getenv('USER'),
+            password = os.getenv('PASSWORD'),
+            host = os.getenv('HOST'),
+            port = os.getenv('PORT')
         )
         return conn
     except Exception as e:
@@ -100,30 +103,34 @@ def inserir_dados(conn, gdf):
         print(f"Erro ao inserir dados: {e}")
 
 
-# Exemplo de uso
-caminho_do_arquivo = r"E:\vscode_projects\etl_gis_project\etl_gis\PontosApoio.xlsx"
-apoio_df = ler_excel(caminho_do_arquivo)
+def main():
+    # Exemplo de uso
+    caminho_do_arquivo = r"E:\vscode_projects\etl_gis_project\etl_gis\PontosApoio.xlsx"
+    apoio_df = ler_excel(caminho_do_arquivo)
 
-if apoio_df is not None:
-    print("Dados do Excel lidos com sucesso:")
-    print(apoio_df.head())
+    if apoio_df is not None:
+        print("Dados do Excel lidos com sucesso:")
+        print(apoio_df.head())
 
-    apoio_gdf = geocodificar_dataframe(apoio_df)
+        apoio_gdf = geocodificar_dataframe(apoio_df)
 
-    if apoio_gdf is not None:
-        print("Dados geocodificados com sucesso:")
-        print(apoio_gdf.head())
-        
-        conexao_bd = conectar_bd()
+        if apoio_gdf is not None:
+            print("Dados geocodificados com sucesso:")
+            print(apoio_gdf.head())
 
-        if conexao_bd is not None:
-            criar_tabela(conexao_bd)
-            inserir_dados(conexao_bd, apoio_gdf)
-            conexao_bd.close()
+            conexao_bd = conectar_bd()
+
+            if conexao_bd is not None:
+                criar_tabela(conexao_bd)
+                inserir_dados(conexao_bd, apoio_gdf)
+                conexao_bd.close()
+        else:
+            print("Falha ao realizar a geocodificação.")
     else:
-        print("Falha ao realizar a geocodificação.")
-else:
-    print("Falha ao ler os dados do Excel.")
+        print("Falha ao ler os dados do Excel.")
 
+
+if __name__ == "__main__":
+    main()
 
 
