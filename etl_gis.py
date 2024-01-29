@@ -10,8 +10,22 @@ from psycopg2 import sql
 
 load_dotenv()
 
-# Função para ler um arquivo Excel e retornar um DataFrame do Pandas
 def ler_excel(caminho_arquivo):
+    
+    """
+    Lê um arquivo Excel e retorna um DataFrame do Pandas.
+
+    Parâmetros:
+    - caminho_arquivo (str): O caminho do arquivo Excel a ser lido.
+
+    Retorna:
+    - pandas.DataFrame: Um DataFrame contendo os dados do arquivo Excel.
+
+    Exceções:
+    - Retorna None se houver um erro ao ler o arquivo.
+    
+    """
+    
     try:
         df = pd.read_excel(caminho_arquivo)
         return df
@@ -19,8 +33,21 @@ def ler_excel(caminho_arquivo):
         print(f"Erro ao ler o arquivo Excel: {e}")
         return None
 
-# Função para realizar a geocodificação de um DataFrame utilizando o geocode do GeoPandas
 def geocodificar_dataframe(df):
+    
+    """
+    Realiza a geocodificação de um DataFrame utilizando o geocode do GeoPandas.
+
+    Parâmetros:
+    - df (pandas.DataFrame): O DataFrame contendo os dados a serem geocodificados.
+    
+    Retorna:
+    - geopandas.GeoDataFrame: Um GeoDataFrame contendo os dados geocodificados.
+
+    Exceções:
+    - Retorna None se houver um erro ao realizar a geocodificação.
+    
+    """
     try:
         dados_geocodificados = geocode(df['ENDEREÇO'], provider='nominatim', timeout=None, user_agent="my_geocoder")
         df['Latitude'] = dados_geocodificados['geometry'].y
